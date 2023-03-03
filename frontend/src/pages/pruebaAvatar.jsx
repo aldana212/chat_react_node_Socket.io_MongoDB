@@ -1,66 +1,82 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { IoIosArrowForward, IoIosArrowBack } from 'react-icons/io';
-
+import { RxDotFilled } from 'react-icons/rx';
 
 export const PruebaAvatar = () => {
-  const [currentAvatarIndex, setCurrentAvatarIndex] = useState(0);
 
-  const avatars = [
-    { id: 1, src: "https://api.multiavatar.com/888468.png?apikey=cJZewVqa0CKfW9" },
-    { id: 2, src: "https://api.multiavatar.com/371440.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/832132.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/3123.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/534534.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/3123.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/832.png?apikey=cJZewVqa0CKfW9" },
-    { id: 4, src: "https://api.multiavatar.com/13123.png?apikey=cJZewVqa0CKfW9" },
-  ];
-  
 
-  const handlePrevAvatar = () => {
-    setCurrentAvatarIndex(
-      currentAvatarIndex === 0 ? avatars.length - 1 : currentAvatarIndex - 1
-    );
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [avatars, setAvatars] = useState([])
+
+  const prevSlide = () => {
+    const isFirstSlide = currentIndex === 0;
+    const newIndex = isFirstSlide ? avatars.length - 1 : currentIndex - 1;
+    setCurrentIndex(newIndex);
   };
 
-  const handleNextAvatar = () => {
-    setCurrentAvatarIndex(
-      currentAvatarIndex === avatars.length - 1 ? 0 : currentAvatarIndex + 1
-    );
+  const nextSlide = () => {
+    const isLastSlide = currentIndex === avatars.length - 1;
+    const newIndex = isLastSlide ? 0 : currentIndex + 1;
+    setCurrentIndex(newIndex);
   };
 
+  const goToSlide = (slideIndex) => {
+    setCurrentIndex(slideIndex);
+  };
+
+  useEffect(() => {
+    async function fetchAvatars() {
+      // Verificar si el avatar ya está almacenado en caché
+      const cachedAvatar = localStorage.getItem(`avatar`);
+      const avatarUrls = [];
+
+      if (cachedAvatar) {
+        console.log(cachedAvatar);
+        setAvatars(JSON.parse(cachedAvatar));
+      } else {
+        for (let i = 0; i < 29; i++) {
+          const num = Math.floor(Math.random() * 1000000);
+          await axios.get(`https://api.multiavatar.com/${num}.png?apikey=cJZewVqa0CKfW9`)
+            .then(({ config }) => {
+              const data = config.url
+              console.log(data);
+              // Almacenar el avatar en caché
+              avatarUrls.push(data)
+              localStorage.setItem(`avatar`, JSON.stringify(avatarUrls));
+              setAvatars([...avatars, avatarUrls]);
+            }).catch(e => console.log(e))
+        }
+        console.log(avatars);
+      }
+    }
+    fetchAvatars();
+  }, []);
 
   return (
-    <div className="relative flex justify-center items-center h-screen">
-      <div
-        className="absolute left-0 top-0 h-full w-16 flex justify-center items-center cursor-pointer hover:bg-gray-200 transition duration-300 z-10"
-        onClick={handlePrevAvatar}
-      >
-        <IoIosArrowBack size={24} color="#000" />
+    <div class="bg-gray-100 w-full min-h-screen gap-4 flex-wrap flex justify-center items-center">
+      <div className='absolute inset-96 flex items-center justify-around p-4'>
+        {/* Left Arrow */}
+        <IoIosArrowBack onClick={prevSlide} size={30} className="p-1 rounded-full shadow  bg-white/80 text-gray-800 hover:bg-white" />
+        {/* Right Arrow */}
+        <IoIosArrowForward onClick={nextSlide} size={30} className="p-1 rounded-full shadow bg-white/80 text-gray-800 hover:bg-white" />
       </div>
-
-      <div className="overflow-hidden w-96 h-16 rounded-xl shadow-lg flex justify-center items-center">
-        {avatars.map((avatar, index) => (
-          <img
-            key={avatar.id}
-            src={avatar.src}
-            alt="Avatar"
-            className={`h-32 w-32 absolute transform transition duration-300 ${
-              index === currentAvatarIndex
-                ? 'translate-x-0 opacity-100'
-                : index > currentAvatarIndex + 1
-                ? 'translate-x-full opacity-0'
-                : 'translate-x-full opacity-0 -z-10'
-            }`}
-          />
-        ))}
-      </div>
-
-      <div
-        className="absolute right-0 top-0 h-full w-16 flex justify-center items-center cursor-pointer hover:bg-gray-200 transition duration-300 z-10"
-        onClick={handleNextAvatar}
-      >
-        <IoIosArrowForward size={24} color="#000" />
+      <div class="w-96 h-96 p-2 bg-white rounded-xl transform transition-all hover:-translate-y-2 duration-300 shadow-lg hover:shadow-2xl z-50">
+          {avatars.map((avatar, index) => (
+        <div className='h-96 w-52 flex items-center justify-center rounded-full scale-y-50'>
+            <img src={avatar}
+              alt={index} key={index}
+              className={` h-full w-full object-cover rounded-xl ${currentIndex === index ?? 'translate-x-0 opacity-100'}  ${currentIndex < index
+                ? 'translate-x-full hidden'
+                : ''
+                }`}
+            />
+        </div>
+          ))}
+        <div className="m-2 flex justify-center absolute bottom-0 right-0">
+          <a role='button' href='#' class="text-white bg-purple-600 px-3 py-1 rounded-md hover:bg-purple-700">Learn More</a>
+        </div>
       </div>
     </div>
   );
