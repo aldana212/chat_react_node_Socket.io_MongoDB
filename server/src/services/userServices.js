@@ -2,32 +2,48 @@ import models from "../models/userModel.js"
 import { saveEncrypt } from '../helpers/helpers.js'
 
 
+import Boom from '@hapi/boom'
+
+
 class clientes_servicio {
 
     async CraeteUser( {username, email, password} ) {
-        try {
-            // console.log(username, email, password);
-            const usernameCheck = models.findOne({ username })
-            console.log(usernameCheck);
-            if (usernameCheck)
-            throw new Error('Nombre de usuario ya utilizado');
-            const emailCheck = models.findOne({ email })
-            // console.log(emailCheck);
-            if (emailCheck)
-            return new Error("Email already used");
-            const hashedPassword = await saveEncrypt(password)
-            console.log(hashedPassword);
-            const user = await models.create({
+        console.log(username, email, password);
+        const usernameCheck = await models.findOne({ username });
+        if (usernameCheck)
+        return (Boom.badRequest("Username already used"));
+        const emailCheck = await models.findOne({ email })
+        if (emailCheck)
+        return (Boom.badRequest("Email already used"));
+        const hashedPassword = await saveEncrypt(password)
+        console.log(hashedPassword);
+        try {   
+        const user = await models.create({
                 email,
                 username,
                 password: hashedPassword,
             })
-            delete user.password;
-            return user;
+            const userRegister = user.save();
+            return userRegister;
         } catch (error) {
-            return new Error(error.message);
+            return (error.message);
         }
 
+    }
+
+
+    async setAvatar(userId, avatarImage){
+        try {
+
+            const userData = await models.findByIdAndUpdate(userId,{
+                isAvatarImageSet: true,
+                avatarImage,
+            })    
+            return userData;
+            
+        } catch (error) {
+            console.log(error.message);
+        }
     }
 }
 

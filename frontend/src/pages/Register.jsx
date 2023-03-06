@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { toast } from 'react-toastify';
-
-import { Link } from "react-router-dom";
+import { toastOptions } from "../utils/AlertToast";
+import { setRegisterRoute } from "../utils/ApiRouters";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios'
 import {
     RiMailLine,
@@ -13,6 +14,8 @@ import {
 
 
 export const Register = () => {
+
+    const navigate = useNavigate()
 
     const [values, setValues] = useState({
         username: '',
@@ -31,31 +34,33 @@ export const Register = () => {
     const [showPassword, setShowPassword] = useState(false)
 
     const handleShowPassword = () => {
-        console.log("jajajajaj");
         setShowPassword(!showPassword)
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault()
-        axios.post("http://localhost:4000/api/auth/register", values)
-            .then(({ data }) => {
-                toast.success(data.msg, {
-                    position: "top-right",
-                    autoClose: 5000,
-                    hideProgressBar: false,
-                    closeOnClick: true,
-                    pauseOnHover: true,
-                    draggable: true,
-                    progress: undefined,
-                    theme: "light",
-                })
+        console.log(values);
+        await axios.post(setRegisterRoute , values)
+            .then(({data}) => {
+                console.log(data.data);
+                toast.success(data.msg, toastOptions)
+                localStorage.setItem('chat-app-user', JSON.stringify(data.data))
+                navigate('/')
             }).catch(err => {
-                console.log(err);
+                console.log(err.response.data);
+                toast.error(err.response.data.msg, toastOptions)
             })
     }
 
+
+    useEffect(() =>{
+      if(localStorage.getItem('chat-app-user')){
+        navigate('/')
+      }
+    },[])
+
     return (
-        <div className='flex items-center justify-center h-screen'>
+        <div className='bg-slate-900 flex items-center justify-center h-screen'>
             <div className='shadow-xl bg-white  p-8 rounded-lg shadow-gray-400/50 w-96'>
                 <div className='mb-10'>
                     <h1 className='text-3xl uppercase font-bold text-center'>
@@ -104,7 +109,7 @@ export const Register = () => {
                                 className='absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer' />
                         )}
                     </div>
-                    <button type="submit" className='mt-6 bg-blue-600 text-white w-full py-2 px-6 rounded-lg'>Register</button>
+                    <button type="submit" className='mt-6 bg-violet-600 text-white w-full py-2 px-6 rounded-lg'>Register</button>
                     <span className='text-center'>
                         <Link to="/login">
                             Already have

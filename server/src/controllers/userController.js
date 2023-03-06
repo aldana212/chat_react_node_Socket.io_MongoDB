@@ -7,11 +7,26 @@ class controlador_clientes{
         const data = req.body;
         let clientes = services.CraeteUser(data)
         clientes.then(responde =>{
-            console.log("eeee");
-            console.log(responde);
-        }).catch(error =>{
-            console.log("errror");
-            console.log(error.message);
+            if (responde.isBoom === true) {
+                res.status(500).json({msg: responde.output.payload.message, status: false})
+            }else{
+                res.status(200).json({ data: responde, msg: "exito", status: true})
+            }
+        })
+        .catch(error =>{
+            console.log(error);
+            res.status(500).json({ msg: error.message })
+        })
+    }
+
+    async setAvatars(req, res){
+        const userId = req.params.id
+        const avatarImage =  req.body.Image;
+        const avatar = services.setAvatar(userId, avatarImage)
+        avatar.then((responde) =>{
+            res.status(200).json({  isSet: responde.isAvatarImageSet, image: responde.avatarImage,})
+        }).catch((err) =>{
+            console.log(err);
         })
     }
 }

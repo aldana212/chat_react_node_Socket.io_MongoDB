@@ -6,6 +6,7 @@ const router = express.Router()
 
 // router.post("/login", login)
 router.post("/register",controllers.createControllerUser)
+router.post("/setAvatar/:id",controllers.setAvatars)
 
 
 export default router;
