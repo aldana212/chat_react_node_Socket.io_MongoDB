@@ -45,6 +45,22 @@ class clientes_servicio {
             console.log(error.message);
         }
     }
+
+    async getAllusers(userId){
+        try {
+
+            const userData = await models.find({_id: { $ne: userId}}).select([
+                "email",
+                "username",
+                "avatarImage",
+                "_id",
+            ])    
+            return userData;
+            
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 }
 
 export {

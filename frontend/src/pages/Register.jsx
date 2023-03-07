@@ -53,11 +53,11 @@ export const Register = () => {
     }
 
 
-    useEffect(() =>{
-      if(localStorage.getItem('chat-app-user')){
-        navigate('/')
-      }
-    },[])
+    // useEffect(() =>{
+    //   if(localStorage.getItem('chat-app-user')){
+    //     navigate('/')
+    //   }
+    // },[])
 
     return (
         <div className='bg-slate-900 flex items-center justify-center h-screen'>

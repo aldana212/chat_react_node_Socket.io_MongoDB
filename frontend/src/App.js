@@ -5,6 +5,7 @@ import { Login } from "./pages/login";
 import { Avatars } from "./pages/Avatars";
 import { PruebaAvatar } from "./pages/pruebaAvatar";
 import { Home } from "./pages/Home";
+import { Chat } from "./pages/Chat";
 
 function App() {
 
@@ -12,6 +13,7 @@ function App() {
     // <div className="App bg-violet-200">
     <Routes>
       <Route path='/' element={<Home />}/>
+      <Route path='/Chat' element={<Chat />}/>
       <Route path='/Chats' element={<Chats />}/>
       <Route path='/setAvatar' element={<Avatars />}/>
       <Route path='/register' element={<Register />}/>

@@ -29,6 +29,16 @@ class controlador_clientes{
             console.log(err);
         })
     }
+
+    async getAllUsers(req, res){
+        const userId = req.params.id
+        const avatar = services.getAllusers(userId)
+        avatar.then((responde) =>{
+            res.status(200).json({ data: responde})
+        }).catch((err) =>{
+            console.log(err);
+        })
+    }
 }
 
 
